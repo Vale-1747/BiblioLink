@@ -1,0 +1,6 @@
+@BiblioLink_HostAddress = http://localhost:5245
+
+GET {{BiblioLink_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
