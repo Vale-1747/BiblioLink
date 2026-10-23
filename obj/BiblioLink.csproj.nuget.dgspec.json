@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\progra2\\BiblioLink\\BiblioLink.csproj": {}
+    "C:\\progra2\\BiblioLink\\BiblioLink.csproj": {}
   },
   "projects": {
-    "c:\\progra2\\BiblioLink\\BiblioLink.csproj": {
+    "C:\\progra2\\BiblioLink\\BiblioLink.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\progra2\\BiblioLink\\BiblioLink.csproj",
+        "projectUniqueName": "C:\\progra2\\BiblioLink\\BiblioLink.csproj",
         "projectName": "BiblioLink",
-        "projectPath": "c:\\progra2\\BiblioLink\\BiblioLink.csproj",
+        "projectPath": "C:\\progra2\\BiblioLink\\BiblioLink.csproj",
         "packagesPath": "C:\\Users\\santi\\.nuget\\packages\\",
-        "outputPath": "c:\\progra2\\BiblioLink\\obj\\",
+        "outputPath": "C:\\progra2\\BiblioLink\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\santi\\AppData\\Roaming\\NuGet\\NuGet.Config"
