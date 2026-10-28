@@ -1,6 +1,6 @@
+using BiblioLink.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using BiblioLink.Models;
 
 public class LibroConfiguration : IEntityTypeConfiguration<Libro>
 {
