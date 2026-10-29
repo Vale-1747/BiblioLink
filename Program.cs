@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using BiblioLink.Interfaces;
+using BiblioLink.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<BibliotecaContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("BibliotecaDb")));
+builder.Services.AddScoped<ILibroService, LibroService>();
 
 var app = builder.Build();
 
