@@ -8,4 +8,5 @@ public interface IPrestamoService
     Task<PrestamoReadDto> DevolverAsync(int prestamoId, CancellationToken ct = default);
     Task<IEnumerable<PrestamoReadDto>> ListarPorUsuarioAsync(int usuarioId, bool soloActivos, CancellationToken ct = default);
     Task<IEnumerable<PrestamoReadDto>> HistorialPorLibroAsync(int libroId, CancellationToken ct = default);
+    Task<IEnumerable<PrestamoActivoDTO>> ListarActivosPorMatriculaAsync(string matricula, CancellationToken ct = default);
 }

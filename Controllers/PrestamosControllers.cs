@@ -61,6 +61,10 @@ public class PrestamosController : ControllerBase
         catch (NotFoundException ex) { return Traducir(ex); }
     }
 
+    [HttpGet("activos/{matricula}")]
+    //no lleva try/catch porque el servicio no lanza excepciones de negocio en este caso
+    public async Task<IActionResult> ActivosPorMatricula(string matricula, CancellationToken ct) => Ok(await _service.ListarActivosPorMatriculaAsync(matricula, ct));
+
     private ObjectResult Traducir(Exception ex) => ex switch
     {
         NotFoundException         => Problem(ex.Message, statusCode: StatusCodes.Status404NotFound),

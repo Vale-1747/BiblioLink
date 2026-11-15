@@ -160,6 +160,26 @@ public class PrestamoService : IPrestamoService
         return lista.Select(ToDto);
     }
 
+    public async Task<IEnumerable<PrestamoActivoDTO>> ListarActivosPorMatriculaAsync(string matricula, CancellationToken ct = default)
+    {
+        var ahora = DateTime.UtcNow;
+        var matriculaLimpia = matricula.Trim();
+
+        var activos = await _db.Prestamos
+            .AsNoTracking()
+            .Include(p => p.Libro)
+            .Where(p => p.Usuario.Matricula == matriculaLimpia && p.Estado == EstadoPrestamo.Vigente)
+            .OrderBy(p => p.FechaDevolucionPrevista)
+            .ToListAsync(ct);
+        
+        return activos.Select(p => new PrestamoActivoDTO
+        {
+            PrestamoId = p.Id,
+            LibroTitulo = p.Libro.Titulo,
+            Estado = p.FechaDevolucionPrevista < ahora ? "Vencido" : "Vigente"
+        }).ToList();
+    }
+
     private static PrestamoReadDto ToDto(Prestamo p) => new()
     {
         Id = p.Id,
