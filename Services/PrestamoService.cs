@@ -70,14 +70,21 @@ public class PrestamoService : IPrestamoService
 
         // 7. API externa (la más cara, va al final)
         bool elegible;
-        try
+        if (EsPersonal(usuario))
         {
-            elegible = await _universidad.EsElegibleAsync(usuario.Matricula, ct);
+            elegible = true;
         }
-        catch (ServicioExternoException ex)
+        else
         {
-            _logger.LogError(ex, "Falló la API externa al verificar la matrícula {Matricula}", usuario.Matricula);
-            throw;
+            try
+            {
+                elegible = await _universidad.EsElegibleAsync(usuario.Matricula, ct);
+            }
+            catch (ServicioExternoException ex)
+            {
+                _logger.LogError(ex, "Falló la API externa al verificar la matrícula {Matricula}", usuario.Matricula);
+                throw;
+            }
         }
         if (!elegible)
         {
@@ -193,4 +200,6 @@ public class PrestamoService : IPrestamoService
         Estado = p.Estado.ToString(),
         Vencido = p.Estado == EstadoPrestamo.Vigente && p.FechaDevolucionPrevista < DateTime.UtcNow
     };
+
+    private static bool EsPersonal(Usuario usuario) => string.Equals(usuario.Tipo, "Personal", StringComparison.OrdinalIgnoreCase);
 }

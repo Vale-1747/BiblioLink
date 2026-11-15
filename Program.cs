@@ -16,7 +16,8 @@ builder.Services.Configure<PrestamosOptions>(builder.Configuration.GetSection(Pr
 //servicios
 builder.Services.AddScoped<ILibroService, LibroService>();
 builder.Services.AddScoped<IPrestamoService, PrestamoService>();
-builder.Services.AddScoped<IUniversidadClient, UniversidadClientFalso>(); //temporal
+builder.Services.Configure<UniversidadApiOptions>(builder.Configuration.GetSection(UniversidadApiOptions.Seccion));
+builder.Services.AddHttpClient<IUniversidadClient, UniversidadClient>();
 
 var app = builder.Build();
 
