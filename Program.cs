@@ -18,6 +18,7 @@ builder.Services.AddScoped<ILibroService, LibroService>();
 builder.Services.AddScoped<IPrestamoService, PrestamoService>();
 builder.Services.Configure<UniversidadApiOptions>(builder.Configuration.GetSection(UniversidadApiOptions.Seccion));
 builder.Services.AddHttpClient<IUniversidadClient, UniversidadClient>();
+builder.Services.AddScoped<IApiExternaService, ApiExternaService>();
 
 var app = builder.Build();
 

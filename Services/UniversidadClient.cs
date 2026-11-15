@@ -2,39 +2,50 @@ using System.Net;
 using System.Text.Json;
 using BiblioLink.Exceptions;
 using BiblioLink.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace BiblioLink.Services;
 
-/*
-cliente HTTP hacia AcademiaCentral: GET {UrlBase}/alumnos/{matricula}/estado
-devuelve true/false si la universidad responde, y lanza ServicioExternoException
-(502, 503 o 504) cuando falla la comunicación, para distinguirla de un error interno (500).
-*/
+// cliente HTTP hacia Academia Central: GET {UrlBase}/alumnos/{matricula}/estado
+// la UrlBase y la ApiKey salen de la tabla ApiExterna (se administran por /api/configuracion-api-externa)
+// devuelve true/false si la universidad responde, y lanza ServicioExternoException
+// (502, 503 o 504) cuando falla la comunicación, para distinguirla de un error interno (500)
 public class UniversidadClient : IUniversidadClient
 {
     private static readonly JsonSerializerOptions JsonOpts = new(JsonSerializerDefaults.Web);
 
     private readonly HttpClient _http;
+    private readonly BibliotecaContext _db;
     private readonly UniversidadApiOptions _opts;
     private readonly ILogger<UniversidadClient> _logger;
 
-    public UniversidadClient(HttpClient http, IOptions<UniversidadApiOptions> opts, ILogger<UniversidadClient> logger)
+    public UniversidadClient(HttpClient http, BibliotecaContext db, IOptions<UniversidadApiOptions> opts, ILogger<UniversidadClient> logger)
     {
         _http = http;
+        _db = db;
         _opts = opts.Value;
         _logger = logger;
     }
 
     public async Task<bool> EsElegibleAsync(string matricula, CancellationToken ct = default)
     {
-        var url = $"{_opts.UrlBase.TrimEnd('/')}/alumnos/{Uri.EscapeDataString(matricula)}/estado";
+        //configuración guardada en la base, se usa la primera, la de menor Id
+        var config = await _db.ApiExternas.AsNoTracking().OrderBy(a => a.Id).FirstOrDefaultAsync(ct);
+        if (config is null)
+        {
+            //es un error de configuracion nuestro, no de la universidad: por eso no es un ServicioExternoException
+            _logger.LogError("No hay ninguna configuración de API externa cargada en la base de datos");
+            throw new InvalidOperationException("No hay configuración de la API de la universidad.");
+        }
+
+        var url = $"{config.UrlBase.TrimEnd('/')}/alumnos/{Uri.EscapeDataString(matricula)}/estado";
 
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.Add("X-API-Key", _opts.ApiKey);
+        request.Headers.Add("X-API-Key", config.ApiKey);
         request.Headers.Accept.ParseAdd("application/json");
 
-        //timeout propio: si vence, cancelamos el pedido. se combina con el token de quien nos llama.
+        //timeout propio: si vence, cancelamos el pedido. se combina con el token de quien nos llama
         using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
         timeoutCts.CancelAfter(TimeSpan.FromSeconds(_opts.TimeoutSegundos));
 
@@ -61,7 +72,7 @@ public class UniversidadClient : IUniversidadClient
         }
     }
 
-    //traduce la respuesta de academia segun el contrato
+    //traduce la respuesta de Academia segun el contrato
     private bool Interpretar(HttpStatusCode status, string cuerpo, string matricula)
     {
         //200 -> { "matricula": "...", "esActivo": true|false }
@@ -78,8 +89,8 @@ public class UniversidadClient : IUniversidadClient
             return estado.EsActivo.Value;
         }
 
-        //404 con campo "mensaje" -> la matrucula no existe -> no elegible.
-        //un 404 SIN "mensaje" (ej.: UrlBase mal escrita) no significa eso: es una falla.
+        //404 con campo "mensaje" -> la matricula no existe -> no elegible
+        //un 404 SIN "mensaje" (ej.: UrlBase mal escrita) no significa eso, es una falla
         if (status == HttpStatusCode.NotFound && Deserializar<MensajeRespuesta>(cuerpo)?.Mensaje is not null)
         {
             _logger.LogInformation("La universidad indica que la matrícula {Matricula} no existe", matricula);
@@ -99,7 +110,7 @@ public class UniversidadClient : IUniversidadClient
         catch (JsonException) { return null; }
     }
 
-    //formas de las respuestas de academia (solo transportan datos)
+    //formas de las respuestas de Academia (solo transportan datos)
     private sealed class EstadoAlumnoRespuesta { public bool? EsActivo { get; set; } }
     private sealed class MensajeRespuesta { public string? Mensaje { get; set; } }
 }
