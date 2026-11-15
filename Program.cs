@@ -9,7 +9,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(); //registra los controladores
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<BibliotecaContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("BibliotecaDb")));
+
+//configuracion de prestamo dais y limite leida de appsettigs.json
+builder.Services.Configure<PrestamosOptions>(builder.Configuration.GetSection(PrestamosOptions.Seccion));
+
+//servicios
 builder.Services.AddScoped<ILibroService, LibroService>();
+builder.Services.AddScoped<IPrestamoService, PrestamoService>();
+builder.Services.AddScoped<IUniversidadClient, UniversidadClientFalso>(); //temporal
 
 var app = builder.Build();
 
