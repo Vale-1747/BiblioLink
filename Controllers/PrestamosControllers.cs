@@ -1,6 +1,7 @@
 using BiblioLink.DTOs;
 using BiblioLink.Exceptions;
 using BiblioLink.Interfaces;
+using BiblioLink.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BiblioLink.Controllers;
@@ -61,6 +62,7 @@ public class PrestamosController : ControllerBase
         catch (NotFoundException ex) { return Traducir(ex); }
     }
 
+    [ApiKey]
     [HttpGet("activos/{matricula}")]
     //no lleva try/catch porque el servicio no lanza excepciones de negocio en este caso
     public async Task<IActionResult> ActivosPorMatricula(string matricula, CancellationToken ct) => Ok(await _service.ListarActivosPorMatriculaAsync(matricula, ct));

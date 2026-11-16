@@ -2,6 +2,7 @@ using System.Net;
 using System.Text.Json;
 using BiblioLink.Exceptions;
 using BiblioLink.Interfaces;
+using BiblioLink.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -78,7 +79,7 @@ public class UniversidadClient : IUniversidadClient
         //200 -> { "matricula": "...", "esActivo": true|false }
         if ((int)status is >= 200 and < 300)
         {
-            var estado = Deserializar<EstadoAlumnoRespuesta>(cuerpo);
+            var estado = Deserializar<EstadoAlumnoExternoDTO>(cuerpo);
             if (estado?.EsActivo is null)
             {
                 _logger.LogError("La respuesta de la universidad no tiene el formato esperado");
@@ -91,7 +92,7 @@ public class UniversidadClient : IUniversidadClient
 
         //404 con campo "mensaje" -> la matricula no existe -> no elegible
         //un 404 SIN "mensaje" (ej.: UrlBase mal escrita) no significa eso, es una falla
-        if (status == HttpStatusCode.NotFound && Deserializar<MensajeRespuesta>(cuerpo)?.Mensaje is not null)
+        if (status == HttpStatusCode.NotFound && Deserializar<MensajeExternoDTO>(cuerpo)?.Mensaje is not null)
         {
             _logger.LogInformation("La universidad indica que la matrícula {Matricula} no existe", matricula);
             return false;
@@ -109,8 +110,4 @@ public class UniversidadClient : IUniversidadClient
         try { return JsonSerializer.Deserialize<T>(json, JsonOpts); }
         catch (JsonException) { return null; }
     }
-
-    //formas de las respuestas de Academia (solo transportan datos)
-    private sealed class EstadoAlumnoRespuesta { public bool? EsActivo { get; set; } }
-    private sealed class MensajeRespuesta { public string? Mensaje { get; set; } }
 }

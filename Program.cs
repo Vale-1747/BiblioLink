@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using BiblioLink.Interfaces;
 using BiblioLink.Services;
 
+DotNetEnv.Env.Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
