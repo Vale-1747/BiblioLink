@@ -19,7 +19,7 @@ public class LibrosController : ControllerBase
     [HttpGet] //GET /api/libros
     public async Task<ActionResult<IEnumerable<LibroReadDTO>>> GetAll() => Ok(await _servicio.GetAll());
 
-    [HttpGet]
+    [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<LibroReadDTO>> GetById(int id)
     {
@@ -30,6 +30,23 @@ public class LibrosController : ControllerBase
         catch (NotFoundException ex)
         {
             return NotFound(ex.Message);
+        }
+    }
+
+    // POST /api/libros
+    [HttpPost]
+    [ProducesResponseType(typeof(LibroReadDTO), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<LibroReadDTO>> Create([FromBody] LibroCreateDTO dto)
+    {
+        try
+        {
+            var creado = await _servicio.Create(dto);
+            return CreatedAtAction(nameof(GetById), new {id = creado.Id}, creado);
+        }
+        catch(ReglaNegocioException ex)
+        {
+            return Conflict(ex.Message);
         }
     }
 
