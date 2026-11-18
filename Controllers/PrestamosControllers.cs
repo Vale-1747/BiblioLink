@@ -22,8 +22,7 @@ public class PrestamosController : ControllerBase
             var creado = await _service.CrearAsync(dto, ct);
             return Created($"/api/prestamos/{creado.Id}", creado);
         }
-        catch (Exception ex) when (ex is NotFoundException or ReglaNegocioException
-                                      or NoElegibleException or ServicioExternoException)
+        catch (Exception ex) when (ex is NotFoundException or ReglaNegocioException or NoElegibleException or ServicioExternoException)
         {
             return Traducir(ex);
         }

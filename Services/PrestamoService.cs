@@ -197,7 +197,7 @@ public class PrestamoService : IPrestamoService
         FechaPrestamo = p.FechaPrestamo,
         FechaDevolucionPrevista = p.FechaDevolucionPrevista,
         FechaDevolucionReal = p.FechaDevolucionReal,
-        Estado = p.Estado.ToString(),
+        Estado = p.Estado == EstadoPrestamo.Vigente && p.FechaDevolucionPrevista < DateTime.UtcNow ? "Vencido": p.Estado.ToString(),
         Vencido = p.Estado == EstadoPrestamo.Vigente && p.FechaDevolucionPrevista < DateTime.UtcNow
     };
 

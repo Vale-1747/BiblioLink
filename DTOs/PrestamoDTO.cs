@@ -24,3 +24,10 @@ public class PrestamoReadDto
     public string Estado { get; set; } = string.Empty;
     public bool Vencido { get; set; }
 }
+
+public class PrestamoActivoDTO
+{
+    public int PrestamoId { get; set; }
+    public string LibroTitulo { get; set; } = string.Empty;
+    public string Estado { get; set; } = string.Empty;   //"Vigente" o "Vencido"
+}

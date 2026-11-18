@@ -17,6 +17,7 @@ public class UsuarioCreateDTO
 
     [Required(ErrorMessage = "El tipo de usuario es obligatorio.")]
     [StringLength(50)]
+    [RegularExpression("^(Alumno|Personal)$", ErrorMessage = "El tipo debe ser Alumno o Personal.")]
     public string Tipo { get; set; } = string.Empty; // Ejemplo: "Alumno" o "Personal"
 
     [Required(ErrorMessage = "El email es obligatorio.")]

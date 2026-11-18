@@ -89,7 +89,7 @@ public class LibroService : ILibroService
 
         if(libro.CantidadDisponible < libro.CantidadTotal) throw new ReglaNegocioException("No se puede eliminar un libro con ejemplares prestados.");
 
-        //TODO (cuando exista Prestamo): impedir borrar libros con historial de prestamos
+        if(await _db.Prestamos.AnyAsync(p => p.LibroId == id)) throw new ReglaNegocioException("No se puede eliminar un libro con historial de préstamos.");
 
         _db.Libros.Remove(libro);
         await _db.SaveChangesAsync();
