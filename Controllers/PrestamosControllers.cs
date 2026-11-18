@@ -2,11 +2,14 @@ using BiblioLink.DTOs;
 using BiblioLink.Exceptions;
 using BiblioLink.Interfaces;
 using BiblioLink.Filters;
+using BiblioLink.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BiblioLink.Controllers;
 
 [ApiController]
+[Authorize(Roles = Roles.Admin)]
 [Route("api/prestamos")]
 public class PrestamosController : ControllerBase
 {
@@ -22,7 +25,7 @@ public class PrestamosController : ControllerBase
             var creado = await _service.CrearAsync(dto, ct);
             return Created($"/api/prestamos/{creado.Id}", creado);
         }
-        catch (Exception ex) when (ex is NotFoundException or ReglaNegocioException or NoElegibleException or ServicioExternoException)
+        catch (Exception ex) when (ex is NotFoundException or ReglaNegocioException or NoElegibleException)
         {
             return Traducir(ex);
         }
@@ -71,7 +74,6 @@ public class PrestamosController : ControllerBase
         NotFoundException         => Problem(ex.Message, statusCode: StatusCodes.Status404NotFound),
         ReglaNegocioException     => Problem(ex.Message, statusCode: StatusCodes.Status409Conflict),
         NoElegibleException       => Problem(ex.Message, statusCode: StatusCodes.Status403Forbidden),
-        ServicioExternoException s => Problem(s.Message, statusCode: s.StatusCode),
         _                         => Problem("Error interno.", statusCode: StatusCodes.Status500InternalServerError)
     };
 }

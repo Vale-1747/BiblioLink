@@ -2,11 +2,18 @@ namespace BiblioLink.Exceptions;
 
 public class ServicioExternoException : Exception
 {
-    public int StatusCode { get; }
+    public TipoFallaServicioExterno TipoFalla { get; }
 
-    public ServicioExternoException(string mensaje, int statusCode, Exception? inner = null)
+    public ServicioExternoException(string mensaje, TipoFallaServicioExterno tipoFalla, Exception? inner = null)
         : base(mensaje, inner)
     {
-        StatusCode = statusCode;
+        TipoFalla = tipoFalla;
     }
+}
+
+public enum TipoFallaServicioExterno
+{
+    NoDisponible,
+    Timeout,
+    RespuestaInvalida
 }

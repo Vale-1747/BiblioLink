@@ -3,15 +3,16 @@ using System.Text.Json;
 using BiblioLink.Exceptions;
 using BiblioLink.Interfaces;
 using BiblioLink.DTOs;
+using BiblioLink.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace BiblioLink.Services;
+namespace BiblioLink.Integrations;
 
 // cliente HTTP hacia Academia Central: GET {UrlBase}/alumnos/{matricula}/estado
 // la UrlBase y la ApiKey salen de la tabla ApiExterna (se administran por /api/configuracion-api-externa)
 // devuelve true/false si la universidad responde, y lanza ServicioExternoException
-// (502, 503 o 504) cuando falla la comunicación, para distinguirla de un error interno (500)
+// con un tipo de falla que la capa HTTP traduce a su código de respuesta
 public class UniversidadClient : IUniversidadClient
 {
     private static readonly JsonSerializerOptions JsonOpts = new(JsonSerializerDefaults.Web);
@@ -62,14 +63,14 @@ public class UniversidadClient : IUniversidadClient
             _logger.LogError("La API de la universidad no respondió en {Segundos} segundos", _opts.TimeoutSegundos);
             throw new ServicioExternoException(
                 "La API de la universidad tardó demasiado en responder.",
-                StatusCodes.Status504GatewayTimeout);
+                TipoFallaServicioExterno.Timeout);
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "No se pudo conectar con la API de la universidad");
             throw new ServicioExternoException(
                 "No se pudo conectar con la API de la universidad.",
-                StatusCodes.Status503ServiceUnavailable, ex);
+                TipoFallaServicioExterno.NoDisponible, ex);
         }
     }
 
@@ -85,7 +86,7 @@ public class UniversidadClient : IUniversidadClient
                 _logger.LogError("La respuesta de la universidad no tiene el formato esperado");
                 throw new ServicioExternoException(
                     "La API de la universidad devolvió una respuesta que no se puede interpretar.",
-                    StatusCodes.Status502BadGateway);
+                    TipoFallaServicioExterno.RespuestaInvalida);
             }
             return estado.EsActivo.Value;
         }
@@ -102,7 +103,7 @@ public class UniversidadClient : IUniversidadClient
         _logger.LogError("La API de la universidad respondió con el estado {Estado}", (int)status);
         throw new ServicioExternoException(
             $"La API de la universidad respondió con un error ({(int)status}).",
-            StatusCodes.Status502BadGateway);
+            TipoFallaServicioExterno.RespuestaInvalida);
     }
 
     private static T? Deserializar<T>(string json) where T : class

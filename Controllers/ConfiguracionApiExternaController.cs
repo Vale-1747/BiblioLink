@@ -1,11 +1,14 @@
 using BiblioLink.DTOs;
 using BiblioLink.Exceptions;
 using BiblioLink.Interfaces;
+using BiblioLink.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BiblioLink.Controllers;
 
 [ApiController]
+[Authorize(Roles = Roles.Admin)]
 [Route("api/configuracion-api-externa")]
 public class ConfiguracionApiExternaController : ControllerBase
 {
