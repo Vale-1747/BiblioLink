@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
+
 namespace BiblioLink.DTOs;
 
 public class CreatePrestamoDto
@@ -22,12 +23,10 @@ public class PrestamoReadDto
     public DateTime FechaDevolucionPrevista { get; set; }
     public DateTime? FechaDevolucionReal { get; set; }
     public string Estado { get; set; } = string.Empty;
-    public bool Vencido { get; set; }
 }
-
 public class PrestamoActivoDTO
 {
     public int PrestamoId { get; set; }
     public string LibroTitulo { get; set; } = string.Empty;
-    public string Estado { get; set; } = string.Empty;   //"Vigente" o "Vencido"
+    public string Estado { get; set; } = string.Empty;
 }
